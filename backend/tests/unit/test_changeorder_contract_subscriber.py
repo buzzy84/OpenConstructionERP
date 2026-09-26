@@ -26,8 +26,8 @@ import pytest
 from sqlalchemy.sql import Select, Update
 
 import app.modules.notifications._wave5_cross_module_subscribers as w5
-from app.modules.contracts import sov_posting
 from app.core.events import Event
+from app.modules.contracts import sov_posting
 
 
 class _FakeContract:
