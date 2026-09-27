@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Tip:** This file is long. Use your browser's **Find** (Ctrl+F) to jump to a version number, or see the [Releases page](https://github.com/datadrivenconstruction/OpenConstructionERP/releases) for a per-release view with download links.
 
-## [18.1.0] - 2026-09-27
+## [18.1.0] - 2026-09-28
 
 Four countries join the platform and the money now follows one path from the estimate to the bank. Croatia, Romania, Greece and Ukraine each get a country pack with their own VAT rates, validation rules, contract rules and project defaults, and a bill in those countries prints its own VAT line even where the pack carries no markup stack. On the money side, a purchase order, a signed contract, a subcontract, an invoice and a payment each count once in the project's committed, invoiced and paid figures, and every dashboard, the budget table, the portfolio outturn and BI now read the same number.
 
