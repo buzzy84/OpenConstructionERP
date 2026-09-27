@@ -2981,5 +2981,46 @@
     "en_value": "BOQ {{position}}",
     "n": 30,
     "reason": "Sibling of contracts.sov_link_boq (same key family, same picker): the BOQ label is substituted with each locale established term where one exists, kept literal elsewhere."
+  },
+  "validation.rs_label_gesn": {
+    "added_by": "18.1.0 release (2026-09-28)",
+    "differs_in": [
+      "ru",
+      "uk"
+    ],
+    "en_value": "GESN",
+    "n": 40,
+    "reason": "Validation rule set label added in 18.1.0. It names a standard or a workflow, so most locales keep the English form on purpose, while the locales in differs_in write it natively; filed for review rather than allowlisted because it is not identical everywhere."
+  },
+  "validation.rs_label_pipeline": {
+    "added_by": "18.1.0 release (2026-09-28)",
+    "differs_in": [
+      "bg",
+      "bn",
+      "ja",
+      "kk",
+      "ko",
+      "ky",
+      "mn",
+      "ru",
+      "th",
+      "tr",
+      "uk",
+      "ur",
+      "vi",
+      "zh"
+    ],
+    "en_value": "Pipeline",
+    "n": 28,
+    "reason": "Validation rule set label added in 18.1.0. It names a standard or a workflow, so most locales keep the English form on purpose, while the locales in differs_in write it natively; filed for review rather than allowlisted because it is not identical everywhere."
+  },
+  "validation.rs_label_sekisan": {
+    "added_by": "18.1.0 release (2026-09-28)",
+    "differs_in": [
+      "ja"
+    ],
+    "en_value": "Sekisan",
+    "n": 41,
+    "reason": "Validation rule set label added in 18.1.0. It names a standard or a workflow, so most locales keep the English form on purpose, while the locales in differs_in write it natively; filed for review rather than allowlisted because it is not identical everywhere."
   }
 }

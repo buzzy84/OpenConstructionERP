@@ -1428,5 +1428,45 @@
     "en_value": "Email",
     "note": "field label on the Company & documents tab; Email is the standard UI word in Indonesian, Italian and Vietnamese, and the same files already write it that way for contacts.field_email, files.transmittals.recipient_email and notifications.preferences.channel_email",
     "reason_category": "cognate_loanword"
+  },
+  "validation.rs_label_bc3": {
+    "en_value": "FIEBDC-3 (BC3)",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_birimfiyat": {
+    "en_value": "Birim fiyat",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_cpwd": {
+    "en_value": "CPWD",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_dpgf": {
+    "en_value": "DPGF",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_gbt50500": {
+    "en_value": "GB/T 50500",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_nbr": {
+    "en_value": "NBR",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_onorm": {
+    "en_value": "ÖNORM",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
+  },
+  "validation.rs_label_sinapi": {
+    "en_value": "SINAPI",
+    "note": "name of a national estimating standard or data format shown as a validation rule set label; written the same way in every locale we ship, Cyrillic and CJK ones included",
+    "reason_category": "standard_code"
   }
 }
