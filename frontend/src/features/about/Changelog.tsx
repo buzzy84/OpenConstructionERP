@@ -67,6 +67,13 @@ const UNRELEASED: ChangelogEntry | null = null;
 // carry the long form and are left alone as the record of what shipped.
 const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '18.2.0',
+    date: '2026-09-29',
+    tag: 'NEW',
+    summary:
+      'The position copilot now only suggests: each change shows before and after with a confidence score and waits for Accept or Reject, and a locked bill refuses every write, imports included. Approved change orders can be added to the schedule of values one by one or marked as already counted, finished records stay steady, a Hungarian budget imports with its split rates and totals, deactivated users get no mail, big exports no longer stall the server, and the desktop app checks for a new version once a day.',
+  },
+  {
     version: '18.1.0',
     date: '2026-09-28',
     tag: 'NEW',
