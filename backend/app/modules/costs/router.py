@@ -4032,7 +4032,7 @@ def _validate_cost_upload(content: bytes, filename: str) -> bool:
                 infos = zf.infolist()
                 if len(infos) > _MAX_COST_ZIP_ENTRIES:
                     raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                         detail=(
                             f"Excel archive contains {len(infos)} entries "
                             f"(> {_MAX_COST_ZIP_ENTRIES} limit) - not a valid workbook."
@@ -4113,7 +4113,7 @@ async def preview_cost_file(
             catalog_uuid = uuid.UUID(catalog_id)
         except ValueError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"catalog_id is not a valid UUID: {catalog_id!r}",
             ) from exc
         # Ownership gate: echoing a catalog's name/currency must require the
@@ -4324,7 +4324,7 @@ async def import_cost_file(
     missing_required = [key for key in ("description", "rate") if key not in mapped_keys]
     if missing_required:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(
                 f"Required column(s) not mapped: {', '.join(missing_required)}. "
                 f"Neither auto-detection nor your column mapping covered them. "
@@ -4346,7 +4346,7 @@ async def import_cost_file(
     # default for rows that carry none of their own.
     if catalog_id and catalog_name and catalog_name.strip():
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Pass either catalog_id (existing catalog) or catalog_name (new catalog), not both.",
         )
 
@@ -4359,7 +4359,7 @@ async def import_cost_file(
             catalog_uuid = uuid.UUID(catalog_id)
         except ValueError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"catalog_id is not a valid UUID: {catalog_id!r}",
             ) from exc
         # Ownership gate: importing into an EXISTING catalog requires the
@@ -4385,7 +4385,7 @@ async def import_cost_file(
                 resolved_currency = max(counts, key=lambda k: counts[k])
         if not resolved_currency:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=(
                     "catalog_currency is required when creating a new catalog from a "
                     "file that has no mapped currency column. Pass a 3-letter ISO 4217 "
@@ -4400,7 +4400,7 @@ async def import_cost_file(
             )
         except ValueError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"Invalid catalog_currency {resolved_currency!r}: expected a 3-letter ISO 4217 code.",
             ) from exc
         catalog = await catalog_service.create_catalog(

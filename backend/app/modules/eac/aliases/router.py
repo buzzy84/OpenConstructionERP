@@ -125,7 +125,7 @@ def _check_scope(value: str | None) -> None:
         return
     if value not in ALIAS_SCOPES:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"scope must be one of {ALIAS_SCOPES}, got '{value}'",
         )
 
@@ -135,7 +135,7 @@ def _check_kind(value: str | None) -> None:
         return
     if value not in ALIAS_SYNONYM_KINDS:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"kind must be one of {ALIAS_SYNONYM_KINDS}, got '{value}'",
         )
 
@@ -145,7 +145,7 @@ def _check_source_filter(value: str | None) -> None:
         return
     if value not in ALIAS_SOURCE_FILTERS:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(f"source_filter must be one of {ALIAS_SOURCE_FILTERS}, got '{value}'"),
         )
 
@@ -155,7 +155,7 @@ def _check_vth(value: str | None) -> None:
         return
     if value not in ALIAS_VALUE_TYPE_HINTS:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(f"value_type_hint must be one of {ALIAS_VALUE_TYPE_HINTS}, got '{value}'"),
         )
 
@@ -578,7 +578,7 @@ async def export_aliases_route(
     """
     if format not in ("json", "csv"):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="format must be 'json' or 'csv'",
         )
     _check_scope(payload.scope)

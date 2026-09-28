@@ -119,7 +119,7 @@ class BIMRequirementService:
                 format_name = _classifier.classify(tmp_path)
             except ValueError as exc:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail=str(exc),
                 ) from exc
 
@@ -128,7 +128,7 @@ class BIMRequirementService:
                 parser = _get_parser(format_name)
             except ValueError as exc:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail=str(exc),
                 ) from exc
 
@@ -153,7 +153,7 @@ class BIMRequirementService:
                     detail=security_errors[0].get("msg", "XML rejected for security reasons."),
                 )
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=(
                     f"No requirements could be parsed from '{filename}' "
                     f"(format: {format_name}). "
@@ -641,7 +641,7 @@ class BIMRequirementService:
             pack = load_rule_pack(f"<inline:{project_id}>", text=yaml_text)
         except RulePackParseError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=str(exc),
             ) from exc
 
