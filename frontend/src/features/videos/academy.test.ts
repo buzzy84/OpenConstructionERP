@@ -20,6 +20,7 @@ import {
   recommend,
   searchVideos,
   startHereVideo,
+  subscribeUrl,
   videosForCase,
   videosForRoute,
   watchUrl,
@@ -219,5 +220,11 @@ describe('example location', () => {
     expect(l2.market).toBeUndefined();
     expect(l2.example).toEqual({ place: 'Denver', country: 'US' });
     expect(recommend({ role: 'estimator', market: 'HR', language: 'hr' }).map((v) => v.id)).toContain('EP02_L2');
+  });
+});
+
+describe('subscribeUrl', () => {
+  it('opens the channel with the subscribe prompt already up', () => {
+    expect(subscribeUrl('UCabc')).toBe('https://www.youtube.com/channel/UCabc?sub_confirmation=1');
   });
 });

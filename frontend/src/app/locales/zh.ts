@@ -45812,6 +45812,7 @@ const resource = {
     "videos.any_role": "任意角色",
     "videos.change": "更改",
     "videos.channel_button": "打开频道",
+    "videos.subscribe_channel": "订阅频道",
     "videos.chapters": "章节",
     "videos.coming_soon_body": "这个视频已经制作完成,正在等待发布。大纲已经放在这里了,视频上线当天就会在这个页面播放。",
     "videos.continue": "继续",

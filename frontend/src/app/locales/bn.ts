@@ -43746,6 +43746,7 @@ const resource = {
     "videos.any_role": "যেকোনো ভূমিকা",
     "videos.change": "পরিবর্তন",
     "videos.channel_button": "চ্যানেল খুলুন",
+    "videos.subscribe_channel": "চ্যানেলটি সাবস্ক্রাইব করুন",
     "videos.chapters": "অধ্যায়",
     "videos.coming_soon_body": "এই ভিডিওটি তৈরি হয়ে গেছে এবং প্রকাশের অপেক্ষায় আছে। রূপরেখা এখানেই আছে, আর প্রকাশের দিন এটি এই পাতায় চলবে।",
     "videos.continue": "চালিয়ে যান",

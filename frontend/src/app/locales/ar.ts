@@ -45647,6 +45647,7 @@ const resource = {
     "videos.any_role": "أي دور",
     "videos.change": "تغيير",
     "videos.channel_button": "افتح القناة",
+    "videos.subscribe_channel": "اشترك في القناة",
     "videos.chapters": "الفصول",
     "videos.coming_soon_body": "هذا الفيديو جاهز وينتظر إصداره. المخطط موجود هنا بالفعل، وسيُعرض في هذه الصفحة يوم صدوره.",
     "videos.continue": "متابعة",

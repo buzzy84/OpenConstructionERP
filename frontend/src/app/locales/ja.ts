@@ -44875,6 +44875,7 @@ const resource = {
     "videos.any_role": "どの役割でも",
     "videos.change": "変更",
     "videos.channel_button": "チャンネルを開く",
+    "videos.subscribe_channel": "チャンネル登録",
     "videos.chapters": "チャプター",
     "videos.coming_soon_body": "この動画は完成しており、公開を待っています。アウトラインはすでにここにあり、公開日にこのページで再生されます。",
     "videos.continue": "続ける",

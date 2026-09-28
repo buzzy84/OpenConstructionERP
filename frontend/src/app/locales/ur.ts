@@ -43434,6 +43434,7 @@ const resource = {
     "videos.any_role": "کوئی بھی کردار",
     "videos.change": "تبدیل کریں",
     "videos.channel_button": "چینل کھولیں",
+    "videos.subscribe_channel": "چینل سبسکرائب کریں",
     "videos.chapters": "ابواب",
     "videos.coming_soon_body": "یہ ویڈیو مکمل ہو چکی ہے اور ریلیز کا انتظار کر رہی ہے۔ خاکہ پہلے سے یہاں موجود ہے، اور ویڈیو ریلیز کے دن اسی صفحے پر چلے گی۔",
     "videos.continue": "جاری رکھیں",

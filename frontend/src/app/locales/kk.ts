@@ -43435,6 +43435,7 @@ const resource = {
     "videos.any_role": "Кез келген рөл",
     "videos.change": "Өзгерту",
     "videos.channel_button": "Арнаны ашу",
+    "videos.subscribe_channel": "Арнаға жазылу",
     "videos.chapters": "Тараулар",
     "videos.coming_soon_body": "Бұл бейне дайын және шығуын күтіп тұр. Жоспары осында бар, ал шыққан күні дәл осы бетте ойнатылады.",
     "videos.continue": "Жалғастыру",

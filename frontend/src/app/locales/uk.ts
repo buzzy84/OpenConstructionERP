@@ -45206,6 +45206,7 @@ const resource = {
     "videos.any_role": "Будь-яка роль",
     "videos.change": "Змінити",
     "videos.channel_button": "Відкрити канал",
+    "videos.subscribe_channel": "Підписатися на канал",
     "videos.chapters": "Розділи",
     "videos.coming_soon_body": "Це відео вже готове і чекає на випуск. План уже тут, а саме відео відтвориться на цій сторінці в день виходу.",
     "videos.continue": "Продовжити",

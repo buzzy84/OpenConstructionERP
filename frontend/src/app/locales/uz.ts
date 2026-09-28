@@ -44367,6 +44367,7 @@ const resource = {
     "videos.any_role": "Har qanday rol",
     "videos.change": "Oʻzgartirish",
     "videos.channel_button": "Kanalni ochish",
+    "videos.subscribe_channel": "Kanalga obuna boʻlish",
     "videos.chapters": "Boʻlimlar",
     "videos.coming_soon_body": "Bu video tayyor va chiqishini kutmoqda. Reja allaqachon shu yerda, video esa chiqqan kuni shu sahifada ishga tushadi.",
     "videos.continue": "Davom etish",

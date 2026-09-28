@@ -38165,6 +38165,7 @@ const resource = {
     "videos.any_role": "Any role",
     "videos.change": "Change",
     "videos.channel_button": "Open the channel",
+    "videos.subscribe_channel": "Subscribe to the channel",
     "videos.chapters": "Chapters",
     "videos.coming_soon_body": "This video is finished and waiting for its release. The outline is here already, and it will play on this page the day it is out.",
     "videos.continue": "Continue",

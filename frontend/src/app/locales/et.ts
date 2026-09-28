@@ -43397,6 +43397,7 @@ const resource = {
     "videos.any_role": "Suvaline roll",
     "videos.change": "Muuda",
     "videos.channel_button": "Ava kanal",
+    "videos.subscribe_channel": "Telli kanal",
     "videos.chapters": "Peatükid",
     "videos.coming_soon_body": "See video on valmis ja ootab avaldamist. Kava on juba siin ja video hakkab sellel lehel mängima avaldamise päeval.",
     "videos.continue": "Jätka",

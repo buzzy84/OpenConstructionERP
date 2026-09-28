@@ -46044,6 +46044,7 @@ const resource = {
     "videos.any_role": "Bármilyen szerepkör",
     "videos.change": "Módosítás",
     "videos.channel_button": "Csatorna megnyitása",
+    "videos.subscribe_channel": "Feliratkozás a csatornára",
     "videos.chapters": "Fejezetek",
     "videos.coming_soon_body": "Ez a videó elkészült, és a megjelenésre vár. A vázlata már itt van, és a megjelenés napján ezen az oldalon lesz lejátszható.",
     "videos.continue": "Folytatás",

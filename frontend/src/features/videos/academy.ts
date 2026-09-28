@@ -57,6 +57,11 @@ export function channelUrl(channelId: string = ACADEMY_CATALOG.channelId): strin
   return `https://www.youtube.com/channel/${encodeURIComponent(channelId)}`;
 }
 
+/** The channel page with the subscribe prompt already open. */
+export function subscribeUrl(channelId: string = ACADEMY_CATALOG.channelId): string {
+  return `${channelUrl(channelId)}?sub_confirmation=1`;
+}
+
 /** `m:ss` or `h:mm:ss`. Digits and colons only, the same in every language. */
 export function formatClock(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));

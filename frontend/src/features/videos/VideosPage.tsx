@@ -56,12 +56,12 @@ import {
   activeFilterCount,
   catalogLanguages,
   catalogMarkets,
-  channelUrl,
   formatClock,
   pathForRole,
   playlist,
   recommend,
   searchVideos,
+  subscribeUrl,
   startHereVideo,
   videoById,
   type VideoFilters,
@@ -252,14 +252,14 @@ function Hero({ labels, onPlay }: { labels: VideoLabels; onPlay: (v: AcademyVide
               </button>
             )}
             <a
-              href={channelUrl()}
+              href={subscribeUrl()}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="videos-channel"
               className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/15 focus:outline-none focus-visible:ring-4 focus-visible:ring-sky-300/60"
             >
               <MonitorPlay size={15} aria-hidden />
-              {t('videos.channel_button', { defaultValue: 'Open the channel' })}
+              {t('videos.subscribe_channel', { defaultValue: 'Subscribe to the channel' })}
               <ExternalLink size={13} className="opacity-70" aria-hidden />
             </a>
           </div>

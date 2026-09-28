@@ -43459,6 +43459,7 @@ const resource = {
     "videos.any_role": "Всяка роля",
     "videos.change": "Промяна",
     "videos.channel_button": "Отвори канала",
+    "videos.subscribe_channel": "Абонирайте се за канала",
     "videos.chapters": "Глави",
     "videos.coming_soon_body": "Това видео е готово и очаква своето излизане. Планът вече е тук и видеото ще се възпроизвежда на тази страница в деня на излизането му.",
     "videos.continue": "Продължи",

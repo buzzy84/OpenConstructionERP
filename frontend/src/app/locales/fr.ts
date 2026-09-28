@@ -46186,6 +46186,7 @@ const resource = {
     "videos.any_role": "Tous les rôles",
     "videos.change": "Changer",
     "videos.channel_button": "Ouvrir la chaîne",
+    "videos.subscribe_channel": "S'abonner à la chaîne",
     "videos.chapters": "Chapitres",
     "videos.coming_soon_body": "Cette vidéo est terminée et attend sa sortie. Le plan est déjà là, et elle sera lue sur cette page le jour de sa publication.",
     "videos.continue": "Continuer",

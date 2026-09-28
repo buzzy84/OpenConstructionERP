@@ -43351,6 +43351,7 @@ const resource = {
     "videos.any_role": "Mọi vai trò",
     "videos.change": "Đổi",
     "videos.channel_button": "Mở kênh",
+    "videos.subscribe_channel": "Đăng ký kênh",
     "videos.chapters": "Chương",
     "videos.coming_soon_body": "Video này đã hoàn thành và đang chờ phát hành. Dàn ý đã có sẵn ở đây, và video sẽ phát trên trang này vào ngày ra mắt.",
     "videos.continue": "Tiếp tục",

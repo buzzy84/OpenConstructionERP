@@ -44336,6 +44336,7 @@ const resource = {
     "videos.any_role": "Elke rol",
     "videos.change": "Wijzigen",
     "videos.channel_button": "Kanaal openen",
+    "videos.subscribe_channel": "Abonneren op het kanaal",
     "videos.chapters": "Hoofdstukken",
     "videos.coming_soon_body": "Deze video is af en wacht op de release. De outline staat er al, en hij speelt op deze pagina zodra hij uitkomt.",
     "videos.continue": "Doorgaan",

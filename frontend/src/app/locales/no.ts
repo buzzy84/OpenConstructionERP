@@ -43455,6 +43455,7 @@ const resource = {
     "videos.any_role": "Alle roller",
     "videos.change": "Endre",
     "videos.channel_button": "Åpne kanalen",
+    "videos.subscribe_channel": "Abonner på kanalen",
     "videos.chapters": "Kapitler",
     "videos.coming_soon_body": "Denne videoen er ferdig og venter på lansering. Oversikten ligger her allerede, og videoen spilles av på denne siden den dagen den er klar.",
     "videos.continue": "Fortsett",

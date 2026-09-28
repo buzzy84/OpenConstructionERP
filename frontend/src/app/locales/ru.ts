@@ -46301,6 +46301,7 @@ const resource = {
     "videos.any_role": "Любая роль",
     "videos.change": "Изменить",
     "videos.channel_button": "Открыть канал",
+    "videos.subscribe_channel": "Подписаться на канал",
     "videos.chapters": "Главы",
     "videos.coming_soon_body": "Это видео готово и ждёт выхода. План уже здесь, а само видео появится на этой странице в день релиза.",
     "videos.continue": "Продолжить",

@@ -43342,6 +43342,7 @@ const resource = {
     "videos.any_role": "Peran apa saja",
     "videos.change": "Ubah",
     "videos.channel_button": "Buka kanal",
+    "videos.subscribe_channel": "Berlangganan kanal",
     "videos.chapters": "Bab",
     "videos.coming_soon_body": "Video ini sudah selesai dan menunggu perilisan. Garis besarnya sudah ada di sini, dan akan diputar di halaman ini pada hari perilisannya.",
     "videos.continue": "Lanjutkan",

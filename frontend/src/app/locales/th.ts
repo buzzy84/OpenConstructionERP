@@ -43343,6 +43343,7 @@ const resource = {
     "videos.any_role": "ทุกบทบาท",
     "videos.change": "เปลี่ยน",
     "videos.channel_button": "เปิดช่อง",
+    "videos.subscribe_channel": "ติดตามช่องนี้",
     "videos.chapters": "บท",
     "videos.coming_soon_body": "วิดีโอนี้เสร็จสมบูรณ์แล้วและรอเผยแพร่ โครงเรื่องมีอยู่ที่นี่แล้ว และวิดีโอจะเล่นบนหน้านี้ในวันที่เผยแพร่",
     "videos.continue": "ดำเนินการต่อ",

@@ -44299,6 +44299,7 @@ const resource = {
     "videos.any_role": "Herhangi bir rol",
     "videos.change": "Değiştir",
     "videos.channel_button": "Kanalı aç",
+    "videos.subscribe_channel": "Kanala abone ol",
     "videos.chapters": "Bölümler",
     "videos.coming_soon_body": "Bu video tamamlandı ve yayına hazır bekliyor. Taslak zaten burada, video yayına girdiği gün bu sayfada oynatılacak.",
     "videos.continue": "Devam et",

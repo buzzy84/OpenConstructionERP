@@ -46097,6 +46097,7 @@ const resource = {
     "videos.any_role": "Beliebige Rolle",
     "videos.change": "Ändern",
     "videos.channel_button": "Kanal öffnen",
+    "videos.subscribe_channel": "Kanal abonnieren",
     "videos.chapters": "Kapitel",
     "videos.coming_soon_body": "Dieses Video ist fertig und wartet auf die Veröffentlichung. Die Gliederung steht schon hier, und das Video läuft auf dieser Seite ab dem Tag der Veröffentlichung.",
     "videos.continue": "Fortsetzen",

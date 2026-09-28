@@ -43434,6 +43434,7 @@ const resource = {
     "videos.any_role": "Kahit anong role",
     "videos.change": "Palitan",
     "videos.channel_button": "Buksan ang channel",
+    "videos.subscribe_channel": "Mag-subscribe sa channel",
     "videos.chapters": "Mga Chapter",
     "videos.coming_soon_body": "Tapos na ang video na ito at hinihintay lang ang paglabas nito. Nandito na ang outline, at ipapalabas ito sa page na ito sa araw na ma-release ito.",
     "videos.continue": "Ituloy",

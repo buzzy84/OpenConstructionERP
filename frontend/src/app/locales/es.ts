@@ -46185,6 +46185,7 @@ const resource = {
     "videos.any_role": "Cualquier rol",
     "videos.change": "Cambiar",
     "videos.channel_button": "Abrir el canal",
+    "videos.subscribe_channel": "Suscribirse al canal",
     "videos.chapters": "Capítulos",
     "videos.coming_soon_body": "Este video está terminado y espera su publicación. El esquema ya está aquí, y se reproducirá en esta página el día que se publique.",
     "videos.continue": "Continuar",

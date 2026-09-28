@@ -43611,6 +43611,7 @@ const resource = {
     "videos.any_role": "Orice rol",
     "videos.change": "Schimbă",
     "videos.channel_button": "Deschide canalul",
+    "videos.subscribe_channel": "Abonează-te la canal",
     "videos.chapters": "Capitole",
     "videos.coming_soon_body": "Acest videoclip este gata și așteaptă lansarea. Structura este deja aici, iar videoclipul se va reda pe această pagină în ziua lansării.",
     "videos.continue": "Continuă",

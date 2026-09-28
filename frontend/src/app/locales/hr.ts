@@ -43622,6 +43622,7 @@ const resource = {
     "videos.any_role": "Bilo koja uloga",
     "videos.change": "Promijeni",
     "videos.channel_button": "Otvori kanal",
+    "videos.subscribe_channel": "Pretplati se na kanal",
     "videos.chapters": "Poglavlja",
     "videos.coming_soon_body": "Ovaj je video gotov i čeka objavu. Osnova je već ovdje, a reproducirat će se na ovoj stranici na dan izlaska.",
     "videos.continue": "Nastavi",

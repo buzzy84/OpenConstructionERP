@@ -43459,6 +43459,7 @@ const resource = {
     "videos.any_role": "Mikä tahansa rooli",
     "videos.change": "Vaihda",
     "videos.channel_button": "Avaa kanava",
+    "videos.subscribe_channel": "Tilaa kanava",
     "videos.chapters": "Luvut",
     "videos.coming_soon_body": "Tämä video on valmis ja odottaa julkaisuaan. Sisällysluettelo on jo täällä, ja video toistuu tällä sivulla sinä päivänä, kun se julkaistaan.",
     "videos.continue": "Jatka",

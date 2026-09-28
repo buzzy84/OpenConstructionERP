@@ -43569,6 +43569,7 @@ const resource = {
     "videos.any_role": "Каалаган роль",
     "videos.change": "Өзгөртүү",
     "videos.channel_button": "Каналды ачуу",
+    "videos.subscribe_channel": "Каналга жазылуу",
     "videos.chapters": "Бөлүмдөр",
     "videos.coming_soon_body": "Бул видео бүтүп, чыгууну күтүп жатат. Планы бул жерде мурунтан эле бар, ал эми чыккан күнү ушул баракта ойнотулат.",
     "videos.continue": "Улантуу",

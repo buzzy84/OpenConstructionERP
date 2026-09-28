@@ -43434,6 +43434,7 @@ const resource = {
     "videos.any_role": "Οποιοσδήποτε ρόλος",
     "videos.change": "Αλλαγή",
     "videos.channel_button": "Άνοιγμα καναλιού",
+    "videos.subscribe_channel": "Εγγραφή στο κανάλι",
     "videos.chapters": "Κεφάλαια",
     "videos.coming_soon_body": "Αυτό το βίντεο είναι έτοιμο και περιμένει την κυκλοφορία του. Το περίγραμμα υπάρχει ήδη εδώ και το βίντεο θα παίζει σε αυτή τη σελίδα από την ημέρα της κυκλοφορίας του.",
     "videos.continue": "Συνέχεια",

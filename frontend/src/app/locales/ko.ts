@@ -43961,6 +43961,7 @@ const resource = {
     "videos.any_role": "모든 역할",
     "videos.change": "변경",
     "videos.channel_button": "채널 열기",
+    "videos.subscribe_channel": "채널 구독",
     "videos.chapters": "챕터",
     "videos.coming_soon_body": "이 영상은 제작이 끝나 공개를 기다리고 있습니다. 개요는 이미 준비되어 있으며, 공개일에 이 페이지에서 재생됩니다.",
     "videos.continue": "계속",

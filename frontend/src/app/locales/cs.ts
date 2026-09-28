@@ -44377,6 +44377,7 @@ const resource = {
     "videos.any_role": "Jakákoli role",
     "videos.change": "Změnit",
     "videos.channel_button": "Otevřít kanál",
+    "videos.subscribe_channel": "Odebírat kanál",
     "videos.chapters": "Kapitoly",
     "videos.coming_soon_body": "Toto video je hotové a čeká na vydání. Osnova je už tady a video se na této stránce spustí v den vydání.",
     "videos.continue": "Pokračovat",

@@ -43434,6 +43434,7 @@ const resource = {
     "videos.any_role": "هر نقشی",
     "videos.change": "تغییر",
     "videos.channel_button": "باز کردن کانال",
+    "videos.subscribe_channel": "عضویت در کانال",
     "videos.chapters": "فصل‌ها",
     "videos.coming_soon_body": "این ویدیو آماده است و منتظر انتشار است. طرح کلی همین حالا اینجاست و روز انتشار در همین صفحه پخش می‌شود.",
     "videos.continue": "ادامه",

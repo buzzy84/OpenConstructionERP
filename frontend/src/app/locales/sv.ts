@@ -44070,6 +44070,7 @@ const resource = {
     "videos.any_role": "Alla roller",
     "videos.change": "Ändra",
     "videos.channel_button": "Öppna kanalen",
+    "videos.subscribe_channel": "Prenumerera på kanalen",
     "videos.chapters": "Kapitel",
     "videos.coming_soon_body": "Den här videon är klar och väntar på att släppas. Innehållsöversikten finns redan här, och videon spelas upp på den här sidan den dag den släpps.",
     "videos.continue": "Fortsätt",

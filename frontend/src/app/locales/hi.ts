@@ -43458,6 +43458,7 @@ const resource = {
     "videos.any_role": "कोई भी भूमिका",
     "videos.change": "बदलें",
     "videos.channel_button": "चैनल खोलें",
+    "videos.subscribe_channel": "चैनल सब्सक्राइब करें",
     "videos.chapters": "अध्याय",
     "videos.coming_soon_body": "यह वीडियो पूरा हो चुका है और रिलीज़ का इंतज़ार कर रहा है। रूपरेखा यहां पहले से मौजूद है, और रिलीज़ होने के दिन यह इसी पेज पर चलेगा।",
     "videos.continue": "जारी रखें",

@@ -43138,6 +43138,7 @@ const resource = {
     "videos.any_role": "Дурын үүрэг",
     "videos.change": "Өөрчлөх",
     "videos.channel_button": "Суваг нээх",
+    "videos.subscribe_channel": "Сувагт бүртгүүлэх",
     "videos.chapters": "Бүлгүүд",
     "videos.coming_soon_body": "Энэ видео бэлэн болсон бөгөөд гарахыг хүлээж байна. Төлөвлөгөө нь энд аль хэдийн бий, гарах өдөр нь энэ хуудсан дээр тоглогдоно.",
     "videos.continue": "Үргэлжлүүлэх",

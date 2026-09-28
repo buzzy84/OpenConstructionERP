@@ -46179,6 +46179,7 @@ const resource = {
     "videos.any_role": "Qualquer função",
     "videos.change": "Alterar",
     "videos.channel_button": "Abrir o canal",
+    "videos.subscribe_channel": "Subscrever o canal",
     "videos.chapters": "Capítulos",
     "videos.coming_soon_body": "Este vídeo está pronto e aguarda o lançamento. O guião já está aqui e o vídeo será reproduzido nesta página no dia em que sair.",
     "videos.continue": "Continuar",

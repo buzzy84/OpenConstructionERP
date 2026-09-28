@@ -470,9 +470,8 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           (Upload + Language + User). Each zone has internal `gap-1`,
           dividers between zones are 1px hairlines.
 
-          SubscribeButton lives in Zone 3 next to HelpMenu (sized to
-          match the Support pill — same h-8 icon-with-label format on
-          desktop, icon-only on mobile). It used to sit absolutely
+          SubscribeButton lives in Zone 3 next to HelpMenu as an icon-only
+          square with the Help footprint. It used to sit absolutely
           centred across the header but that created awkward visual
           tension with the project switcher on the left; planted next
           to Support/Help, the two CTAs read as a coherent cluster. */}

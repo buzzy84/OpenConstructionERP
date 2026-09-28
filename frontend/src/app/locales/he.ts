@@ -43584,6 +43584,7 @@ const resource = {
     "videos.any_role": "כל תפקיד",
     "videos.change": "שינוי",
     "videos.channel_button": "פתיחת הערוץ",
+    "videos.subscribe_channel": "הירשמו לערוץ",
     "videos.chapters": "פרקים",
     "videos.coming_soon_body": "הסרטון הזה מוכן ומחכה לשחרור. התוכן המפורט כבר כאן, והוא יופעל בעמוד הזה ביום שהוא יוצא.",
     "videos.continue": "המשך",

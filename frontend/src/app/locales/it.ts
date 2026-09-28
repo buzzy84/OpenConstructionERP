@@ -44487,6 +44487,7 @@ const resource = {
     "videos.any_role": "Qualsiasi ruolo",
     "videos.change": "Cambia",
     "videos.channel_button": "Apri il canale",
+    "videos.subscribe_channel": "Iscriviti al canale",
     "videos.chapters": "Capitoli",
     "videos.coming_soon_body": "Questo video è terminato e in attesa di pubblicazione. La scaletta è già qui, e verrà riprodotto in questa pagina il giorno dell'uscita.",
     "videos.continue": "Continua",

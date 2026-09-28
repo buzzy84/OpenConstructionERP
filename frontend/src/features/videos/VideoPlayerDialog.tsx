@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 import type { AcademyVideo } from './academyTypes';
-import { caseRef, channelUrl, embedUrl, formatClock, playlist, watchUrl } from './academy';
+import { caseRef, embedUrl, formatClock, playlist, subscribeUrl, watchUrl } from './academy';
 import { useVideosStore } from './useVideosStore';
 import { VideoCover } from './VideoCover';
 import type { VideoLabels } from './videoLabels';
@@ -208,12 +208,12 @@ export function VideoPlayerDialog({
                 )}
                 {!published && (
                   <a
-                    href={channelUrl()}
+                    href={subscribeUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-light px-2.5 py-1.5 text-xs font-medium text-content-secondary hover:border-oe-blue/40 hover:text-oe-blue"
                   >
-                    {t('videos.follow_channel', { defaultValue: 'Follow the channel' })}
+                    {t('videos.subscribe_channel', { defaultValue: 'Subscribe to the channel' })}
                     <ExternalLink size={12} aria-hidden />
                   </a>
                 )}

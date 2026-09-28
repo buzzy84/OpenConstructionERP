@@ -44606,6 +44606,7 @@ const resource = {
     "videos.any_role": "Dowolna rola",
     "videos.change": "Zmień",
     "videos.channel_button": "Otwórz kanał",
+    "videos.subscribe_channel": "Subskrybuj kanał",
     "videos.chapters": "Rozdziały",
     "videos.coming_soon_body": "Ten film jest gotowy i czeka na publikację. Konspekt jest już tutaj, a film odtworzy się na tej stronie w dniu premiery.",
     "videos.continue": "Kontynuuj",
