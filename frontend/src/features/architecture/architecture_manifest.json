@@ -23718,6 +23718,13 @@
           "request_schema": "CopilotApplyRequest"
         },
         {
+          "method": "POST",
+          "path": "/positions/{position_id}/copilot/review",
+          "handler": "review_position_copilot_proposals",
+          "response_model": "CopilotReviewResponse",
+          "request_schema": "CopilotReviewRequest"
+        },
+        {
           "method": "GET",
           "path": "/boqs/{boq_id}/export/csv",
           "handler": "export_boq_csv",
@@ -230990,10 +230997,10 @@
     },
     {
       "name": "boq",
-      "ts_files": 147,
+      "ts_files": 149,
       "css_files": 0,
-      "test_files": 72,
-      "total_files": 147
+      "test_files": 74,
+      "total_files": 149
     },
     {
       "name": "buyer-portal",
@@ -233461,11 +233468,11 @@
     "total_models": 617,
     "total_columns": 7101,
     "total_relationships": 234,
-    "total_routes": 3704,
+    "total_routes": 3705,
     "total_schemas": 3486,
     "total_python_files": 2209,
     "frontend_features": 190,
-    "frontend_ts_files": 2755,
+    "frontend_ts_files": 2757,
     "frontend_backend_mapped": 169
   },
   "frontend_backend_mapping": {
