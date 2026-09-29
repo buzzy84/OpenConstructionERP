@@ -66,6 +66,10 @@ CI_ONLY_BY_DESIGN = {
     ),
     "check_docker_force_include_context.py": ("Self-test. Step: 'Prove the Docker force-include gate can fail'."),
     "check_prompt_provenance.py": ("Self-test. Step: 'Prove the prompt provenance guard can fail'."),
+    "check_wheel_ships_every_pack.py": (
+        "Reads the installed wheel. Step: 'Ask the installed wheel which packs it lists'. "
+        "At pre-commit time no wheel has been built."
+    ),
     "check_workflow_guard_count.py": (
         "Guards repo-hygiene.yml itself rather than the source tree. Step: 'Check this "
         "file's header still counts its own guards correctly'. A hook scoped by files: "

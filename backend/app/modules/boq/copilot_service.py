@@ -867,14 +867,14 @@ class BOQCopilotService:
         accept_set, reject_set = set(accept), set(reject)
         if accept_set & reject_set:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A proposal cannot be both accepted and rejected",
             )
         if len(accept_set | reject_set) > _MAX_REVIEW_ITEMS or any(
             i < 0 or i >= len(stored) for i in accept_set | reject_set
         ):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Unknown proposal index",
             )
 
@@ -900,7 +900,7 @@ class BOQCopilotService:
                 proposals[idx] = CopilotActionProposal.model_validate(stored[idx])
             except Exception as exc:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail="Stored proposal cannot be read",
                 ) from exc
 
