@@ -1472,6 +1472,7 @@ export function ProjectDetailPage() {
   // the module off the route does not exist and the button below would fall
   // through to the catch-all 404, so the button goes with it.
   const isCollaborationEnabled = useModuleStore((s) => s.isModuleEnabled('collaboration'));
+  const isProductionRegisterEnabled = useModuleStore((s) => s.isModuleEnabled('production-register'));
   // The project framework areas (governance, economics, quality and the rest) come with a framework
   // pack. Without it the hub does not offer them; their routes stay live for deep links.
   const { data: partnerPack } = usePartnerPack();
@@ -3045,6 +3046,17 @@ export function ProjectDetailPage() {
                         onClick={() => navigate('/collaboration')}
                       >
                         {t('projects.dash_discussion_link', { defaultValue: 'Discussion' })}
+                      </Button>
+                    )}
+                    {isProductionRegisterEnabled && projectId && (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full justify-start"
+                        icon={<ClipboardList size={14} />}
+                        onClick={() => navigate(`/projects/${projectId}/drawing-log`)}
+                      >
+                        {t('productionRegister.title', { defaultValue: 'Drawing Log' })}
                       </Button>
                     )}
                     <Button
