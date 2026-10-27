@@ -15,7 +15,7 @@ from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from sqlalchemy import select
 from .models import ProductionItem, ItemBOQLink, ItemCheckpoint
-from .schemas import ItemInput, BOQLinkInput
+from .schemas import ItemInput, BOQLinkInput, CheckpointWrite
 from .service import RegisterService, serialize, fail
 
 COLUMN_HEADERS = (
@@ -29,6 +29,12 @@ LEGACY_WORKSTREAMS = {11: "production", 12: "glass", 13: "lighting", 14: "finish
 MAX_BYTES = 10 * 1024 * 1024
 MAX_ROWS = 10000
 SYNC_SCHEMA = 1
+
+
+def validate_resolution_override(issue: str | None, override: dict) -> None:
+    """Never turn a foreign-register or stale-version reference into a local write."""
+    if issue in ("WRONG_REGISTER", "ITEM_VERSION_CONFLICT"):
+        fail(409, issue, "Foreign-register or stale-version sync cannot be overridden")
 
 
 def _cell(value: Any) -> str | None:
@@ -107,6 +113,8 @@ def parse_xlsx(content: bytes, filename: str) -> dict:
         for cells in sh.iter_rows(min_row=2, values_only=True):
             if cells and cells[0] is not None:
                 try:
+                    if len(cells) >= 10 and cells[9] is not None and int(cells[9]) != SYNC_SCHEMA:
+                        fail(422, "INVALID_SYNC_SCHEMA", "Unsupported hidden Drawing Log sync schema")
                     sync[int(cells[0])] = {"project_id": cells[1], "register_id": cells[2], "item_id": cells[3],
                       "version": int(cells[4]), "row_hash": cells[5], "checkpoint_data": json.loads(cells[6] or "{}"),
                       "visible_hashes": json.loads(cells[7] or "{}"),
@@ -163,17 +171,65 @@ def parse_xlsx(content: bytes, filename: str) -> dict:
                "notes": values[17] or "", "boq_refs": _boq_refs(values[1]), "checkpoint_raw":
                    {ws_code: values[col] for col, ws_code in LEGACY_WORKSTREAMS.items()},
                "occurrence_index": occurrence[k], "sync": sync.get(idx)}
+        row["checkpoint_structured"] = {}
         if row["sync"]:
-            # Hidden OCERP metadata wins only when the visible legacy cell has not
-            # changed. This preserves status-only checkpoints across export/reimport.
+            # The value shown in the Excel cell may be the status, not the raw
+            # text. An unchanged cell preserves the structured record verbatim.
             saved = row["sync"]["checkpoint_data"]
             hashes = row["sync"]["visible_hashes"]
             for code, raw in list(row["checkpoint_raw"].items()):
                 if code in saved and hashes.get(code) == _hash(raw):
+                    if not isinstance(saved[code], dict):
+                        fail(422, "INVALID_SYNC", "Invalid checkpoint payload")
                     row["checkpoint_raw"][code] = saved[code].get("reported_value")
+                    row["checkpoint_structured"][code] = saved[code]
         parsed.append(row)
     return {"rows": parsed, "warnings": warnings, "sha256": hashlib.sha256(content).hexdigest(),
             "legacy_code_header": legacy_code_header, "source_sheet": ws.title}
+
+
+def needs_checkpoint_update(existing: ItemCheckpoint | None, raw: str | None) -> bool:
+    """A cleared visible cell must clear an existing raw value, not be ignored."""
+    return (existing is not None and existing.reported_value != raw) or (existing is None and raw is not None)
+
+
+def restored_checkpoint_fields(row: dict, code: str) -> dict:
+    """The hidden worksheet is only a lossless snapshot, never an owner of state.
+
+    For a new entry from a same-register workbook, restore explicitly recorded
+    checkpoint fields; for updates the current database record wins. All values
+    go through Pydantic, so a malformed hidden sheet cannot store arbitrary status.
+    """
+    saved = row.get("checkpoint_structured", {}).get(code)
+    if not saved:
+        return {}
+    allowed = {key: saved[key] for key in CheckpointWrite.model_fields
+               if key in saved and key != "expected_version"}
+    try:
+        return CheckpointWrite(expected_version=0, **allowed).model_dump(exclude={"expected_version"})
+    except Exception:
+        fail(422, "INVALID_SYNC", "Malformed structured checkpoint in hidden sync worksheet")
+
+
+def reference_warnings(rows: list[dict], positions: list[dict]) -> list[dict]:
+    """Explain unresolved and duplicated commercial ordinals without guessing.
+
+    A reference may validly occur on many ProductionItems; the ambiguity is
+    specifically more than one position with the same ordinal in the baseline.
+    """
+    counts = Counter(str(position.get("ordinal", "")) for position in positions)
+    warnings: list[dict] = []
+    for row in rows:
+        for reference in row["boq_refs"]:
+            count = counts.get(reference, 0)
+            if count != 1:
+                warnings.append({
+                    "row": row["excel_row"],
+                    "reference": reference,
+                    "code": "AMBIGUOUS_BOQ_REF" if count > 1 else "UNRESOLVED_BOQ_REF",
+                    "message": "BOQ reference needs explicit mapping" if count > 1 else "Not present in the approved BOQ baseline",
+                })
+    return warnings
 
 
 def _item_values(item: ProductionItem) -> dict:
@@ -214,6 +270,7 @@ async def build_plan(s: RegisterService, reg, parsed: dict, resolutions: dict | 
                 issue = "AMBIGUOUS_LEGACY_MATCH"
         override = resolutions.get(str(row["excel_row"]))
         if override is not None:
+            validate_resolution_override(issue, override)
             if not isinstance(override, dict) or override.get("action") not in ("create", "match"):
                 fail(422, "INVALID_RESOLUTION", "Expected create or match action")
             if override["action"] == "create":
@@ -246,15 +303,16 @@ async def build_plan(s: RegisterService, reg, parsed: dict, resolutions: dict | 
             action = "unchanged"
         result.append({"row": row["excel_row"], "item_id": str(matching.id) if matching else None,
                        "item_version": matching.version if matching else None, "action": action,
-                       "issue": issue, "values": {k: _cell(v) for k, v in row.items() if k not in ("sync", "checkpoint_raw")},
+                       "issue": issue, "values": {k: _cell(v) for k, v in row.items() if k not in ("sync", "checkpoint_raw", "checkpoint_structured")},
                        "boq_refs": row["boq_refs"]})
     return {"items": result, "counts": dict(Counter(x["action"] for x in result))}
 
 async def preview(s: RegisterService, reg, content: bytes, filename: str) -> dict:
     parsed = parse_xlsx(content, filename)
     plan = await build_plan(s, reg, parsed)
+    warnings = [*parsed["warnings"], *reference_warnings(parsed["rows"], await s.boq_positions(reg))]
     return {"preview_sha256": parsed["sha256"], "register_version": reg.version,
-            "legacy_code_header": parsed["legacy_code_header"], "warnings": parsed["warnings"], **plan}
+            "legacy_code_header": parsed["legacy_code_header"], "warnings": warnings, **plan}
 
 async def commit(s: RegisterService, reg, content: bytes, filename: str, preview_sha256: str,
                  expected_register_version: int, resolutions_json: str) -> dict:
@@ -305,15 +363,18 @@ async def commit(s: RegisterService, reg, content: bytes, filename: str, preview
             changed += 1
         for code, raw in row["checkpoint_raw"].items():
             ws = ws_by_code.get(code)
-            if ws is None or raw is None:
+            if ws is None:
                 continue
             existing = (await s.db.execute(select(ItemCheckpoint).where(ItemCheckpoint.item_id == item.id,
                         ItemCheckpoint.workstream_id == ws.id))).scalar_one_or_none()
-            if existing and existing.reported_value == raw:
+            restored = restored_checkpoint_fields(row, code) if existing is None else {}
+            if not needs_checkpoint_update(existing, raw) and not restored:
                 continue
             if existing is None:
                 existing = ItemCheckpoint(item_id=item.id, project_id=s.project_id, workstream_id=ws.id,
                                          status="unknown", version=1, source="excel")
+                for field, value in restored.items():
+                    setattr(existing, field, value)
                 s.db.add(existing)
             else:
                 existing.version += 1
@@ -343,7 +404,7 @@ async def export_xlsx(s: RegisterService, reg, mode: str) -> bytes:
         ws.cell(3, col).font = Font(bold=True, color="FFFFFF")
         ws.cell(3, col).fill = PatternFill("solid", fgColor="273E58")
     meta = book.create_sheet("_OCERP_SYNC")
-    meta.append(["row_number", "project_id", "register_id", "item_id", "item_version", "row_hash", "checkpoint_data", "visible_hashes", "original_identity"])
+    meta.append(["row_number", "project_id", "register_id", "item_id", "item_version", "row_hash", "checkpoint_data", "visible_hashes", "original_identity", "schema_version"])
     meta.sheet_state = "hidden"
     workstreams = {w.id: w for w in await s.repo.workstreams(reg.id)}
     prev_floor = prev_category = None
@@ -373,7 +434,7 @@ async def export_xlsx(s: RegisterService, reg, mode: str) -> bytes:
         meta.append([row_index, str(s.project_id), str(reg.id), str(item.id), item.version,
                      _hash(values), json.dumps({k: serialize(c) for k, c in by_code.items()}, default=str),
                      json.dumps({k: _hash(v) for k, v in visible.items()}),
-                     json.dumps({"floor": item.floor, "room": item.room, "item_code": item.item_code})])
+                     json.dumps({"floor": item.floor, "room": item.room, "item_code": item.item_code}), SYNC_SCHEMA])
     ws.freeze_panes = "D4"
     ws.auto_filter.ref = f"A3:T{ws.max_row}"
     for col, width in zip("ABCDEFGHIJKLMNOPQRST", [24, 29, 24, 45, 35, 17, 19, 35, 30, 23, 20, 20, 20, 20, 22, 18, 22, 28, 23, 23]):

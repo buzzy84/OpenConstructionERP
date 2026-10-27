@@ -88,7 +88,7 @@ async def item_detail(item_id: uuid.UUID, s: RegisterService = Depends(svc)):
 @router.patch(PREFIX + "/items/{item_id}", dependencies=[EDIT])
 async def edit_item(item_id: uuid.UUID, data: ItemPatch, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    return serialize(await s.edit_item(reg, await s.require_item(reg, item_id), data))
+    return serialize(await s.edit_item(reg, await s.require_item(reg, item_id, write=True), data))
 
 @router.post(PREFIX + "/items/{item_id}/archive", dependencies=[MANAGE])
 async def archive_item(item_id: uuid.UUID, data: ArchiveRequest, s: RegisterService = Depends(svc)):
@@ -107,7 +107,7 @@ async def archive_item(item_id: uuid.UUID, data: ArchiveRequest, s: RegisterServ
 @router.put(PREFIX + "/items/{item_id}/boq-links", dependencies=[EDIT])
 async def put_boq_links(item_id: uuid.UUID, data: BOQLinksReplace, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    item = await s.require_item(reg, item_id)
+    item = await s.require_item(reg, item_id, write=True)
     s.check_version(item.version, data.expected_version)
     before = [serialize(x) for x in await s.repo.links(item.id)]
     links = await s.replace_links(reg, item, data.links)
@@ -120,7 +120,7 @@ async def put_boq_links(item_id: uuid.UUID, data: BOQLinksReplace, s: RegisterSe
 @router.put(PREFIX + "/items/{item_id}/relations", dependencies=[EDIT])
 async def put_relations(item_id: uuid.UUID, data: RelationsReplace, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    item = await s.require_item(reg, item_id)
+    item = await s.require_item(reg, item_id, write=True)
     s.check_version(item.version, data.expected_version)
     existing = list((await s.db.execute(select(ItemRelation).where(ItemRelation.project_id == s.project_id,
                   ItemRelation.parent_item_id.in_(select(ProductionItem.id).where(ProductionItem.register_id == reg.id))))).scalars())
@@ -190,7 +190,7 @@ async def edit_workstream(workstream_id: uuid.UUID, data: WorkstreamPatch, s: Re
 @router.put(PREFIX + "/items/{item_id}/checkpoints/{workstream_id}", dependencies=[EDIT])
 async def put_checkpoint(item_id: uuid.UUID, workstream_id: uuid.UUID, data: CheckpointWrite, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    item = await s.require_item(reg, item_id)
+    item = await s.require_item(reg, item_id, write=True)
     workstream = await s.db.get(WorkstreamDefinition, workstream_id)
     if not workstream:
         fail(404, "WORKSTREAM_NOT_FOUND", "Workstream not found")
@@ -203,7 +203,7 @@ async def bulk_checkpoint(data: CheckpointBulk, s: RegisterService = Depends(svc
         fail(422, "DUPLICATE_CHECKPOINT", "Bulk contains duplicate item/workstream")
     result = []
     for update in data.updates:
-        item = await s.require_item(reg, update.item_id)
+        item = await s.require_item(reg, update.item_id, write=True)
         ws = await s.db.get(WorkstreamDefinition, update.workstream_id)
         if ws is None:
             fail(404, "WORKSTREAM_NOT_FOUND", "Workstream not found")
@@ -219,7 +219,7 @@ async def references(item_id: uuid.UUID, s: RegisterService = Depends(svc)):
 @router.post(PREFIX + "/items/{item_id}/references", dependencies=[EDIT], status_code=201)
 async def add_reference(item_id: uuid.UUID, data: ReferenceCreate, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    item = await s.require_item(reg, item_id)
+    item = await s.require_item(reg, item_id, write=True)
     await s.validate_reference(data)
     if any(r.kind == data.kind and r.owner_id == data.owner_id and r.namespace == data.namespace and r.external_key == data.external_key for r in await s.repo.references(item.id)):
         fail(409, "DUPLICATE_REFERENCE", "Reference already linked")
@@ -234,7 +234,7 @@ async def add_reference(item_id: uuid.UUID, data: ReferenceCreate, s: RegisterSe
 @router.delete(PREFIX + "/items/{item_id}/references/{ref_id}", dependencies=[EDIT])
 async def delete_reference(item_id: uuid.UUID, ref_id: uuid.UUID, s: RegisterService = Depends(svc)):
     reg = await s.require_register(write=True)
-    await s.require_item(reg, item_id)
+    await s.require_item(reg, item_id, write=True)
     row = await s.db.get(ItemReference, ref_id)
     if row is None or row.item_id != item_id or row.project_id != s.project_id:
         fail(404, "REFERENCE_NOT_FOUND", "Reference not found")

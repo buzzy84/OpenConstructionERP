@@ -11,7 +11,8 @@ export default function ImportWizard({projectId,onDone,onClose}:Props){
   const [resolutions,setResolutions]=useState<Record<string,{action:'create'|'match';item_id?:string}>>({});
   const [choices,setChoices]=useState<{id:string;item_code:string;room:string}[]>([]);
   const [error,setError]=useState<string|null>(null);
-  const unresolved=preview?.items.some(r=>r.action==='conflict' && !resolutions[String(r.row)]);
+  const unresolved=preview?.items.some(r=>r.action==='conflict' && (!resolutions[String(r.row)] ||
+    (resolutions[String(r.row)]?.action==='match' && !resolutions[String(r.row)]?.item_id?.trim())));
   const run=async (act:'preview'|'commit')=>{
     if(!file) return;
     setBusy(true);setError(null);
@@ -46,10 +47,17 @@ export default function ImportWizard({projectId,onDone,onClose}:Props){
           Row {row.row}: {row.issue} — choose target
           <select className="mt-1 w-full rounded border border-border bg-surface-primary p-2" value={
             resolutions[String(row.row)]?.action==='create'?'create':resolutions[String(row.row)]?.item_id||''}
-            onChange={e=>setResolutions(v=>({...v,[row.row]:e.target.value==='create'?{action:'create'}:{action:'match',item_id:e.target.value}}))}>
+            onChange={e=>setResolutions(v=>{const next={...v};
+              if(!e.target.value)delete next[row.row];
+              else next[row.row]=e.target.value==='create'?{action:'create'}:{action:'match',item_id:e.target.value};
+              return next;})}>
             <option value="">— Select resolution —</option><option value="create">Create a new independent item</option>
             {choices.map(x=><option value={x.id} key={x.id}>{x.item_code} / {x.room} ({x.id.slice(0,8)})</option>)}
           </select>
+          <input className="mt-1 w-full rounded border border-border bg-surface-primary p-2"
+            aria-label={`Target UUID for row ${row.row}`} placeholder="Or paste a target item UUID (for items beyond the first 200)"
+            value={resolutions[String(row.row)]?.action==='match'?resolutions[String(row.row)]?.item_id||'':''}
+            onChange={e=>setResolutions(v=>({...v,[row.row]:{action:'match',item_id:e.target.value}}))}/>
         </label>)}
         {unresolved&&<p role="alert" className="text-amber-700">Select a resolution for each conflict to enable import.</p>}
         <button disabled={busy||unresolved} className="rounded bg-oe-blue px-4 py-2 text-white disabled:opacity-40" onClick={()=>void run('commit')}>{t('productionRegister.commit')}</button>

@@ -1,7 +1,7 @@
 """Production Drawing Register: eight additive, project-scoped tables.
 
 Revision ID: v3325_production_register
-Revises: v3324_buyer_selection_currency
+Revises: v199_subcontractor_contact_link
 
 Inspector guards are intentional: the application's bootstrap may have already
 executed Base.metadata.create_all() before Alembic runs.
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "v3325_production_register"
-down_revision: Union[str, Sequence[str], None] = "v3324_buyer_selection_currency"
+down_revision: Union[str, Sequence[str], None] = "v199_subcontractor_contact_link"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

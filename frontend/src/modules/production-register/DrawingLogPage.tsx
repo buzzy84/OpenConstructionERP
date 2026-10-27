@@ -9,6 +9,8 @@ import DrawingLogGrid from './DrawingLogGrid';
 import CreateRegisterDialog from './CreateRegisterDialog';
 import ImportWizard from './ImportWizard';
 import ItemDrawer from './ItemDrawer';
+import BoqCandidatePanel from './BoqCandidatePanel';
+import WorkstreamConfigRow from './WorkstreamConfigRow';
 
 const input='w-full rounded border border-border bg-surface-primary px-3 py-2 text-sm';
 export default function DrawingLogPage(){
@@ -21,6 +23,7 @@ export default function DrawingLogPage(){
   const [bulkWorkstream,setBulkWorkstream]=useState('production');
   const [bulkStatus,setBulkStatus]=useState<CheckpointStatus>('in_progress');
   const [manageOpen,setManageOpen]=useState(false);
+  const [showBoqCandidates,setShowBoqCandidates]=useState(false);
   const [newWsCode,setNewWsCode]=useState('');const [newWsLabel,setNewWsLabel]=useState('');
   const [itemDraft,setItemDraft]=useState({item_code:'',description:'',floor:'',room:'',category:'',production_qty_raw:'',quoted_qty_raw:'',boq_refs:''});
   const readiness=useQuery({queryKey:['production-register',projectId,'readiness'],queryFn:()=>registerApi.readiness(projectId),enabled:!!projectId});
@@ -30,7 +33,7 @@ export default function DrawingLogPage(){
   const list=useQuery({queryKey:['production-register',projectId,'items',page,search,floor],queryFn:()=>registerApi.items(projectId,{page,page_size:50,search,floor}),enabled:hasRegister});
   const refresh=async()=>{await qc.invalidateQueries({queryKey:['production-register',projectId]});};
   const create=useMutation({mutationFn:({contractId,boqId,mode}:{contractId:string;boqId:string;mode:'empty'|'from_boq'|'excel'})=>
-     registerApi.create(projectId,contractId,boqId,mode),onSuccess:(data)=>{void refresh();if(data.created_mode==='excel')setImportOpen(true);},onError:e=>setError(String(e))});
+     registerApi.create(projectId,contractId,boqId,mode),onSuccess:(data)=>{void refresh();if(data.created_mode==='excel')setImportOpen(true);if(data.created_mode==='from_boq')setShowBoqCandidates(true);},onError:e=>setError(String(e))});
   const checkpointUpdate=useMutation({mutationFn:({item,ws,status}:{item:Item;ws:Workstream;status:CheckpointStatus})=>{
     const current=item.checkpoints?.find(c=>c.workstream_id===ws.id);
     return registerApi.checkpoint(projectId,item.id,ws.id,{expected_version:current?.version||0,status,
@@ -73,6 +76,12 @@ export default function DrawingLogPage(){
         <span className="rounded-lg border border-border px-3 py-2">{t('productionRegister.unresolved')}: <b>{summary.data?.unresolved_boq_links??'…'}</b></span>
         <span className="rounded-lg border border-border px-3 py-2">Distinct BOQ: <b>{summary.data?.distinct_boq_positions??'…'}</b></span>
       </div>
+      <button className="rounded border border-border px-3 py-2 text-sm" onClick={()=>setShowBoqCandidates(v=>!v)}>{t('productionRegister.boqCandidates')}</button>
+      {showBoqCandidates&&<BoqCandidatePanel projectId={projectId} onClose={()=>setShowBoqCandidates(false)}
+        onUse={positions=>{setItemDraft(previous=>({...previous,
+          description:positions.length===1?positions[0]!.description:previous.description,
+          boq_refs:[...new Set([...previous.boq_refs.split(/[\n;]+/).map(x=>x.trim()).filter(Boolean),...positions.map(p=>p.ordinal)])].join('\n')}));
+          setShowBoqCandidates(false);setAddOpen(true);}}/>}
       <DrawingLogToolbar search={search} onSearch={v=>{setSearch(v);setPage(1);}} floor={floor} onFloor={v=>{setFloor(v);setPage(1);}}
         floors={floors} onAdd={()=>setAddOpen(true)} onImport={()=>setImportOpen(true)} onExport={mode=>{void registerApi.export(projectId,mode).catch(e=>setError(String(e)));}} reload={()=>{void refresh();}}/>
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -87,11 +96,8 @@ export default function DrawingLogPage(){
           onClick={()=>bulk.mutate()}>Update selected</button>
       </div>
       {manageOpen&&<div className="rounded border border-border p-4"><h2 className="mb-3 font-semibold">Workstream configuration</h2>
-        {register.data.workstreams.map(w=><div key={w.id} className="flex items-center gap-2 py-1 text-sm">
-          <span className="w-40">{w.code}</span>
-          <span>{w.label}</span>
-          <label><input type="checkbox" checked={w.enabled} onChange={e=>{void registerApi.editWorkstream(projectId,w.id,{enabled:e.target.checked}).then(refresh).catch(err=>setError(String(err)));}}/> Enabled</label>
-        </div>)}
+        {register.data.workstreams.map(w=><WorkstreamConfigRow key={w.id} workstream={w} disabled={false}
+          onSave={changes=>registerApi.editWorkstream(projectId,w.id,changes).then(refresh).catch(err=>{setError(String(err));return undefined;})}/>)}
         <div className="flex gap-2"><input className={input} placeholder="Code" value={newWsCode} onChange={e=>setNewWsCode(e.target.value)}/>
           <input className={input} placeholder="Label" value={newWsLabel} onChange={e=>setNewWsLabel(e.target.value)}/>
           <button className="rounded border border-border px-3 py-2" disabled={!newWsCode||!newWsLabel}

@@ -38,6 +38,14 @@ const strings = {
   'productionRegister.commit':'Confirm import',
   'productionRegister.boqHelp':'Separate multiple BOQ references with a new line',
   'productionRegister.noItems':'No items match the current filters',
+  'productionRegister.boqCandidates':'Approved BOQ candidates',
+  'productionRegister.boqCandidatesHelp':'Select one or more commercial positions to associate with a new production item. No item is created automatically.',
+  'productionRegister.selected':'selected',
+  'productionRegister.useSelection':'Use selected positions',
+  'productionRegister.loading':'Loading…',
+  'productionRegister.archiveReason':'Reason for archiving',
+  'productionRegister.archiveItem':'Archive item',
+  'productionRegister.remove':'Remove',
 };
 const italian = {
   'productionRegister.title':'Drawing Log',
@@ -74,6 +82,14 @@ const italian = {
   'productionRegister.commit':'Conferma importazione',
   'productionRegister.boqHelp':'Separa più riferimenti BOQ con un a capo',
   'productionRegister.noItems':'Nessun elemento corrisponde ai filtri',
+  'productionRegister.boqCandidates':'Posizioni BOQ approvate',
+  'productionRegister.boqCandidatesHelp':'Seleziona una o più posizioni commerciali da associare a un nuovo elemento produttivo. Nessun elemento viene creato automaticamente.',
+  'productionRegister.selected':'selezionati',
+  'productionRegister.useSelection':'Usa posizioni selezionate',
+  'productionRegister.loading':'Caricamento…',
+  'productionRegister.archiveReason':'Motivo archiviazione',
+  'productionRegister.archiveItem':'Archivia elemento',
+  'productionRegister.remove':'Rimuovi',
 };
 // Every shipped language receives these keys. For translations not yet edited, explicit
 // English is preferable to a missing key; Italian and English ship complete localized sets.

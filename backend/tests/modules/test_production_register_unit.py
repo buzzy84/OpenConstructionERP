@@ -120,3 +120,126 @@ def test_optimistic_check_rejects_stale_clients():
         RegisterService.check_version(8,7)
     assert exc.value.status_code == 409
     RegisterService.check_version(8,8)
+
+
+def test_rejects_unrecognized_sync_sheet_schema_version():
+    from app.modules.production_register.excel_io import SYNC_SCHEMA
+    book = load_workbook(BytesIO(sample_workbook()))
+    sh = book.create_sheet('_OCERP_SYNC')
+    sh.append(['row_number', 'project_id', 'register_id', 'item_id', 'item_version', 'row_hash', 'checkpoint_data', 'visible_hashes', 'original_identity', 'schema_version'])
+    sh.append([6, str(uuid4()), str(uuid4()), str(uuid4()), 1, '', '{}', '{}', '{}', SYNC_SCHEMA + 999])
+    out = BytesIO(); book.save(out)
+    with pytest.raises(HTTPException) as exc:
+        parse_xlsx(out.getvalue(), 'synthetic.xlsx')
+    assert exc.value.status_code == 422
+    assert exc.value.detail['code'] == 'INVALID_SYNC_SCHEMA'
+
+
+def test_sync_from_another_register_cannot_be_overridden():
+    from app.modules.production_register.excel_io import validate_resolution_override
+    with pytest.raises(HTTPException) as exc:
+        validate_resolution_override('WRONG_REGISTER', {'action': 'create'})
+    assert exc.value.status_code == 409
+    with pytest.raises(HTTPException):
+        validate_resolution_override('ITEM_VERSION_CONFLICT', {'action': 'match', 'item_id': str(uuid4())})
+    validate_resolution_override('AMBIGUOUS_LEGACY_MATCH', {'action': 'create'})
+
+
+def test_safeguards_archived_records_against_writes():
+    from app.modules.production_register.service import assert_item_editable
+    class Item:
+        lifecycle = 'archived'
+    with pytest.raises(HTTPException) as exc:
+        assert_item_editable(Item())
+    assert exc.value.status_code == 409
+    Item.lifecycle = 'active'
+    assert_item_editable(Item())
+
+
+def test_reimport_blank_clears_previous_raw_checkpoint_value():
+    from types import SimpleNamespace
+    from app.modules.production_register.excel_io import needs_checkpoint_update
+    assert needs_checkpoint_update(SimpleNamespace(reported_value='Supplier pending'), None)
+    assert not needs_checkpoint_update(None, None)
+    assert needs_checkpoint_update(None, 'new raw value')
+    assert not needs_checkpoint_update(SimpleNamespace(reported_value='unchanged'), 'unchanged')
+
+
+def test_structured_checkpoint_survives_unchanged_xlsx_cell():
+    from app.modules.production_register.excel_io import _hash
+    book = load_workbook(BytesIO(sample_workbook()))
+    ws = book.active
+    ws['L6'] = 'Supplier pending'
+    sh = book.create_sheet('_OCERP_SYNC')
+    sh.append(['row_number','project_id','register_id','item_id','item_version','row_hash','checkpoint_data','visible_hashes','original_identity','schema_version'])
+    stored = {
+       'production': {'status':'on_hold','reported_value':'Supplier pending','notes':'Waiting for stone',
+                      'planned_date':'2026-09-10','actual_date':None,'assignee_name':'External vendor','version':2}
+    }
+    import json
+    sh.append([6,str(uuid4()),str(uuid4()),str(uuid4()),2,'',json.dumps(stored),
+               json.dumps({'production':_hash('Supplier pending')}),'{}',1])
+    out=BytesIO();book.save(out)
+    result=parse_xlsx(out.getvalue(),'synthetic.xlsx')
+    assert result['rows'][0]['checkpoint_structured']['production']['status']=='on_hold'
+    assert result['rows'][0]['checkpoint_structured']['production']['notes']=='Waiting for stone'
+
+
+def test_legacy_export_preserves_structured_checkpoint_on_reimport():
+    """An exported status must not be treated as free-text progress on reimport."""
+    import asyncio
+    from types import SimpleNamespace
+    from app.modules.production_register.excel_io import export_xlsx
+    reg_id, project_id, item_id, ws_id = (uuid4() for _ in range(4))
+    row = ProductionItem(id=item_id, register_id=reg_id, project_id=project_id, display_order=1,
+                         floor='BASEMENT FLOOR', room='1', category='WALL', item_code='CLD1',
+                         description='Wall', specification='', quoted_qty_raw='a corpo',
+                         production_qty_raw='4ml', comments='', change_notes='', notes='',
+                         reported_approval_date=None, version=2)
+    stream = WorkstreamDefinition(id=ws_id, project_id=project_id, register_id=reg_id,
+                                  code='production', label='Production', enabled=True)
+    checkpoint = ItemCheckpoint(id=uuid4(), item_id=item_id, workstream_id=ws_id,
+                                project_id=project_id, status='completed', reported_value=None,
+                                notes='Finished in production', source='manual', version=3)
+    reg = ProductionRegister(id=reg_id, project_id=project_id, legacy_code_header='BUZZONI CODE')
+    class Repo:
+        async def workstreams(self, register_id):return [stream]
+        async def links(self, item):return []
+        async def checkpoints(self, item):return [checkpoint]
+    class FakeDb:
+        async def execute(self, statement):
+            rows = [row] if statement.column_descriptions[0]['entity'] is ProductionItem else []
+            return SimpleNamespace(scalars=lambda:rows)
+    svc=SimpleNamespace(db=FakeDb(),repo=Repo(),project_id=project_id)
+    blob=asyncio.run(export_xlsx(svc,reg,'legacy'))
+    parsed=parse_xlsx(blob,'drawing-log.xlsx')
+    line=parsed['rows'][0]
+    assert line['item_code']=='CLD1'
+    assert line['checkpoint_raw']['production'] is None
+    assert line['checkpoint_structured']['production']['status']=='completed'
+    assert line['checkpoint_structured']['production']['notes']=='Finished in production'
+    assert parsed['legacy_code_header']=='BUZZONI CODE'
+
+
+def test_import_preview_warns_for_ambiguous_and_unresolved_boq_references():
+    from app.modules.production_register.excel_io import reference_warnings
+    baseline = [{'ordinal':'A-001','id':str(uuid4())}, {'ordinal':'A-001','id':str(uuid4())},
+                {'ordinal':'C-100','id':str(uuid4())}]
+    rows = [{'excel_row':6,'boq_refs':['A-001','UNKNOWN','C-100']}]
+    warnings = reference_warnings(rows,baseline)
+    assert [(x['code'],x['reference']) for x in warnings] == [
+      ('AMBIGUOUS_BOQ_REF','A-001'),('UNRESOLVED_BOQ_REF','UNKNOWN')]
+
+
+def test_readiness_requires_nonblank_signature_and_boq_approval_stamps():
+    from app.modules.production_register.service import has_business_stamp
+    assert not has_business_stamp(None)
+    assert not has_business_stamp('   ')
+    assert has_business_stamp('2026-10-27T14:00:00Z')
+    assert has_business_stamp(str(uuid4()))
+
+
+def test_production_register_migration_extends_october_2026_head():
+    from pathlib import Path
+    revision = (Path(__file__).parents[2] / 'alembic' / 'versions' / 'v3325_production_register.py').read_text()
+    assert 'down_revision: Union[str, Sequence[str], None] = "v199_subcontractor_contact_link"' in revision

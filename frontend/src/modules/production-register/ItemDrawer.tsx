@@ -23,6 +23,7 @@ export default function ItemDrawer({projectId,item,register,onClose}:Props){
   const [externalKey,setExternalKey]=useState('');
   const [referenceLabel,setReferenceLabel]=useState('');
   const [error,setError]=useState('');
+  const [archiveReason,setArchiveReason]=useState('');
   const {data:detail,isLoading}=useQuery({queryKey:['production-register',projectId,'item',item.id],queryFn:()=>registerApi.item(projectId,item.id)});
   const {data:audit}=useQuery({queryKey:['production-register',projectId,'audit',item.id],queryFn:()=>registerApi.audit(projectId,item.id),enabled:section==='history'});
   const {data:candidates}=useQuery({queryKey:['production-register',projectId,'candidates'],queryFn:()=>registerApi.candidates(projectId),enabled:section==='boq'});
@@ -77,6 +78,16 @@ export default function ItemDrawer({projectId,item,register,onClose}:Props){
           {['ours','subcontracted','by_others','unknown'].map(v=><option key={v}>{v}</option>)}
         </select></label>
         <button disabled={action.isPending} onClick={saveGeneral} className="rounded bg-oe-blue px-4 py-2 text-white">{t('productionRegister.save')}</button>
+        <div className="mt-6 border-t border-border pt-4">
+          <label className="block text-sm">{t('productionRegister.archiveReason')}
+            <input className={field} value={archiveReason} onChange={e=>setArchiveReason(e.target.value)} />
+          </label>
+          <button className="mt-2 rounded border border-red-500 px-3 py-2 text-red-600 disabled:opacity-40"
+            disabled={action.isPending || archiveReason.trim().length<3}
+            onClick={()=>action.mutate(()=>registerApi.archiveItem(projectId,detail.id,detail.version,archiveReason.trim()).then(onClose))}>
+            {t('productionRegister.archiveItem')}
+          </button>
+        </div>
       </div>}
       {detail&&section==='boq'&&<div className="space-y-3"><p className="text-sm">{t('productionRegister.boqHelp')}</p>
         <textarea className={field} rows={7} value={boqText} onChange={e=>setBoqText(e.target.value)} aria-label={t('productionRegister.boq')}/>
@@ -96,7 +107,13 @@ export default function ItemDrawer({projectId,item,register,onClose}:Props){
         })}
       </div>}
       {detail&&section==='relations'&&<div className="space-y-3">
-        {(detail.relations||[]).map((r,i)=><p key={i} className="text-sm">{r.kind} → {r.child_item_id}</p>)}
+        {(detail.relations||[]).map((r,i)=><div key={i} className="flex items-center justify-between gap-2 text-sm">
+          <span>{r.kind} → {r.child_item_id}</span>
+          <button className="rounded border border-border px-2 py-1" onClick={()=>action.mutate(()=>registerApi.relations(
+            projectId,detail.id,detail.version,(detail.relations||[]).filter((_,j)=>j!==i).map(x=>({child_item_id:x.child_item_id,kind:x.kind}))))}>
+            {t('productionRegister.remove')}
+          </button>
+        </div>)}
         <label className="block text-sm">Child item<select className={field} value={relationId} onChange={e=>setRelationId(e.target.value)}>
           <option value="">—</option>{(allItems?.items||[]).filter(x=>x.id!==detail.id).map(x=><option key={x.id} value={x.id}>{x.item_code}: {x.description}</option>)}
         </select></label>

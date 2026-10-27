@@ -44,6 +44,17 @@ def _jsonable(value: Any) -> Any:
     return value
 
 
+def has_business_stamp(value: str | None) -> bool:
+    """A whitespace-only signature or approval field is not a valid gate."""
+    return bool(value and value.strip())
+
+
+def assert_item_editable(item: ProductionItem) -> None:
+    """An archived item remains readable for audit, never mutable."""
+    if item.lifecycle == "archived":
+        fail(409, "ITEM_ARCHIVED", "Archived items are read-only")
+
+
 class RegisterService:
     def __init__(self, session: AsyncSession, project_id: uuid.UUID, actor_id: uuid.UUID):
         self.db, self.project_id, self.actor_id = session, project_id, actor_id
@@ -54,7 +65,9 @@ class RegisterService:
         if project is None or project.status in ("archived", "deleted"):
             fail(404, "PROJECT_NOT_FOUND", "Project not available")
         contracts = list((await self.db.execute(select(Contract).where(Contract.project_id == self.project_id, Contract.status == "active", Contract.signed_at.is_not(None)))).scalars())
+        contracts = [c for c in contracts if has_business_stamp(c.signed_at)]
         bills = list((await self.db.execute(select(BOQ).where(BOQ.project_id == self.project_id, BOQ.variation_request_id.is_(None), BOQ.is_locked.is_(True), BOQ.approved_at.is_not(None), BOQ.approved_by.is_not(None)))).scalars())
+        bills = [b for b in bills if has_business_stamp(b.approved_at) and has_business_stamp(b.approved_by)]
         eligible = []
         for bill in bills:
             snapshot_id = designated_baseline_id(bill)
@@ -131,10 +144,12 @@ class RegisterService:
         reg.version += 1
         await self.db.flush()
 
-    async def require_item(self, reg: ProductionRegister, item_id: uuid.UUID) -> ProductionItem:
+    async def require_item(self, reg: ProductionRegister, item_id: uuid.UUID, *, write: bool = False) -> ProductionItem:
         row = await self.repo.item(reg.id, self.project_id, item_id)
         if row is None:
             fail(404, "ITEM_NOT_FOUND", "Item not found in this project")
+        if write:
+            assert_item_editable(row)
         return row
 
     @staticmethod
@@ -149,6 +164,7 @@ class RegisterService:
         return list(snap.snapshot_data.get("positions") or [])
 
     async def replace_links(self, reg: ProductionRegister, item: ProductionItem, links: list[BOQLinkInput]) -> list[ItemBOQLink]:
+        assert_item_editable(item)
         positions = await self.boq_positions(reg)
         by_ref: dict[str, list[dict]] = defaultdict(list)
         for pos in positions:
@@ -191,6 +207,7 @@ class RegisterService:
         return item
 
     async def edit_item(self, reg: ProductionRegister, item: ProductionItem, inp: ItemPatch) -> ProductionItem:
+        assert_item_editable(item)
         self.check_version(item.version, inp.expected_version)
         before = serialize(item)
         nonnullable = {"item_code", "floor", "room", "category", "description", "specification",
@@ -206,8 +223,11 @@ class RegisterService:
         return item
 
     async def put_checkpoint(self, reg: ProductionRegister, item: ProductionItem, workstream: WorkstreamDefinition, inp: CheckpointWrite):
+        assert_item_editable(item)
         if workstream.register_id != reg.id:
             fail(404, "WORKSTREAM_NOT_FOUND", "Workstream not in project")
+        if not workstream.enabled:
+            fail(409, "WORKSTREAM_DISABLED", "Disabled workstreams are read-only")
         check = (await self.db.execute(select(ItemCheckpoint).where(ItemCheckpoint.item_id == item.id,
                      ItemCheckpoint.workstream_id == workstream.id).with_for_update())).scalar_one_or_none()
         current = check.version if check else 0
