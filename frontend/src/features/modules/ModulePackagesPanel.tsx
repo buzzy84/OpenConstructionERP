@@ -28,6 +28,8 @@ interface PackagePreview {
   files: { path: string; size: number; sha256: string }[];
   checks: PackageCheck[];
   installable: boolean;
+  action: 'install' | 'update';
+  installed_version: string | null;
 }
 
 interface InstalledPackage {
@@ -38,11 +40,12 @@ interface InstalledPackage {
   installed_at: string;
   loaded: boolean;
   enabled: boolean;
+  restart_required: boolean;
 }
 
 interface InstallResult {
   name: string;
-  status: 'active' | 'installed_disabled';
+  status: 'active' | 'installed_disabled' | 'restart_required';
 }
 
 const INSTALLED_KEY = ['module-packages-installed'] as const;
@@ -109,9 +112,11 @@ export function ModulePackagesPanel() {
       addToast({
         type: 'success',
         title:
-          result.status === 'active'
-            ? t('module_packages.installed_active', { defaultValue: 'Module installed and active' })
-            : t('module_packages.installed_disabled', { defaultValue: 'Module installed, switched off' }),
+          result.status === 'restart_required'
+            ? t('module_packages.restart_required', { defaultValue: 'Module updated: restart the server to activate it' })
+            : result.status === 'active'
+              ? t('module_packages.installed_active', { defaultValue: 'Module installed and active' })
+              : t('module_packages.installed_disabled', { defaultValue: 'Module installed, switched off' }),
         message: result.name,
       });
       setPreview(null);
@@ -143,7 +148,7 @@ export function ModulePackagesPanel() {
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-content-primary">
             <FileArchive size={16} />
-            {t('module_packages.title', { defaultValue: 'Install module (.zip)' })}
+            {t('module_packages.title', { defaultValue: 'Install or update module (.zip)' })}
           </h3>
           <p className="mt-1 max-w-2xl text-xs text-content-secondary">
             {t('module_packages.intro', {
@@ -175,6 +180,11 @@ export function ModulePackagesPanel() {
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="font-medium text-content-primary">{preview.display_name ?? preview.module_name ?? '?'}</span>
             {preview.version && <Badge variant="neutral">{preview.version}</Badge>}
+            {preview.action === 'update' && (
+              <Badge variant="warning">
+                {t('module_packages.update_from', { defaultValue: 'Update from {{version}}', version: preview.installed_version ?? '?' })}
+              </Badge>
+            )}
             {preview.module_name && <code className="text-xs text-content-tertiary">{preview.module_name}</code>}
             {preview.author && <span className="text-xs text-content-secondary">{preview.author}</span>}
             <Badge variant="neutral">
@@ -233,10 +243,12 @@ export function ModulePackagesPanel() {
                   defaultValue: 'I reviewed these files and I trust this code to run on the server.',
                 })}
               </label>
-              <label className="flex items-center gap-2 text-xs text-content-secondary">
-                <input type="checkbox" checked={enable} onChange={(e) => setEnable(e.target.checked)} />
-                {t('module_packages.enable_now', { defaultValue: 'Switch the module on after installing' })}
-              </label>
+              {preview.action !== 'update' && (
+                <label className="flex items-center gap-2 text-xs text-content-secondary">
+                  <input type="checkbox" checked={enable} onChange={(e) => setEnable(e.target.checked)} />
+                  {t('module_packages.enable_now', { defaultValue: 'Switch the module on after installing' })}
+                </label>
+              )}
             </div>
           )}
           <div className="flex gap-2">
@@ -246,7 +258,9 @@ export function ModulePackagesPanel() {
               disabled={!preview.installable || !trusted || install.isPending}
               onClick={() => install.mutate(preview)}
             >
-              {t('module_packages.install', { defaultValue: 'Install' })}
+              {preview.action === 'update'
+                ? t('module_packages.update', { defaultValue: 'Update (restart required)' })
+                : t('module_packages.install', { defaultValue: 'Install' })}
             </Button>
             <Button variant="ghost" size="sm" onClick={discard}>
               {t('common.cancel', { defaultValue: 'Cancel' })}
@@ -265,10 +279,12 @@ export function ModulePackagesPanel() {
               <li key={m.name} className="flex items-center justify-between gap-2 text-xs">
                 <span className="text-content-primary">
                   {m.display_name ?? m.name} <span className="text-content-tertiary">{m.version}</span>{' '}
-                  <Badge variant={m.loaded && m.enabled ? 'success' : 'neutral'}>
-                    {m.loaded && m.enabled
-                      ? t('module_packages.status_active', { defaultValue: 'Active' })
-                      : t('module_packages.status_off', { defaultValue: 'Off' })}
+                  <Badge variant={m.restart_required ? 'warning' : m.loaded && m.enabled ? 'success' : 'neutral'}>
+                    {m.restart_required
+                      ? t('module_packages.status_restart', { defaultValue: 'Restart required' })
+                      : m.loaded && m.enabled
+                        ? t('module_packages.status_active', { defaultValue: 'Active' })
+                        : t('module_packages.status_off', { defaultValue: 'Off' })}
                   </Badge>
                 </span>
                 <Button
