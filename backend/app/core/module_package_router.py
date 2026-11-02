@@ -124,7 +124,15 @@ async def list_installed() -> list[dict[str, Any]]:
     from app.core.module_loader import module_loader
 
     return [
-        {**m, "loaded": m.get("name") in module_loader._modules, "enabled": module_loader.is_enabled(m.get("name"))}
+        {
+            **m,
+            "loaded": m.get("name") in module_loader._modules,
+            "enabled": module_loader.is_enabled(m.get("name")),
+            "restart_required": (
+                m.get("name") in module_loader._modules
+                and module_loader._modules[m["name"]].manifest.version != m.get("version")
+            ),
+        }
         for m in pkg.installed_packages()
     ]
 
