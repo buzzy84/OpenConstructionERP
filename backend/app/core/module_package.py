@@ -556,7 +556,7 @@ async def _upgrade(token: str, data: bytes, preview: Preview, *, actor: str | No
     old = read_marker(target)
     if old is None or old.get("name") != name or old.get("version") != preview.installed_version:
         raise PackageRefused("Installed module changed since preview. Upload the ZIP again.", code="changed")
-    backup = root / f".{target.name}.rollback"
+    backup = root / ".oe-rollback" / target.name
     candidate = root / f".{target.name}.{uuid.uuid4().hex}.candidate"
     extracted = None
     try:
@@ -576,6 +576,7 @@ async def _upgrade(token: str, data: bytes, preview: Preview, *, actor: str | No
             "previous_archive_sha256": old.get("archive_sha256"),
         }
         (candidate / MARKER_FILE).write_text(json.dumps(marker, indent=2), encoding="utf-8")
+        backup.parent.mkdir(parents=True, exist_ok=True)
         if backup.exists():
             shutil.rmtree(backup)
         target.rename(backup)
