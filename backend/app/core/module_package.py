@@ -117,6 +117,8 @@ class Preview:
     ui: dict[str, Any] | None
     files: list[PackageFile]
     checks: list[Check] = field(default_factory=list)
+    action: str = "install"
+    installed_version: str | None = None
 
     @property
     def installable(self) -> bool:
@@ -391,11 +393,25 @@ def _check_manifest(top: str, fields: dict[str, Any], known: dict[str, str], che
         checks.append(
             Check("manifest.category", "error", "A third-party module cannot be 'core'. Set category='community'.")
         )
+    existing_dir = runtime_modules_dir().expanduser() / top
+    existing = read_marker(existing_dir)
     if name in known:
-        checks.append(
-            Check("manifest.collision", "error", f"A module named {name} is already installed. Uninstall it first.")
-        )
-    if (runtime_modules_dir().expanduser() / top).exists() and name not in known:
+        if existing is None or existing.get("name") != name:
+            checks.append(Check("manifest.collision", "error", f"A bundled or unmanaged module named {name} already exists."))
+        else:
+            old_version = existing.get("version")
+            new_version = fields.get("version")
+            if (
+                not isinstance(old_version, str)
+                or not _VERSION_RE.fullmatch(old_version)
+                or not isinstance(new_version, str)
+                or not _VERSION_RE.fullmatch(new_version)
+                or _parse_version(new_version) <= _parse_version(old_version)
+            ):
+                checks.append(Check("manifest.update_version", "error", f"An update must be newer than {old_version}."))
+            else:
+                checks.append(Check("manifest.update_restart", "warning", "Updating a ZIP-managed module requires restarting the server to load the new code."))
+    if existing_dir.exists() and name not in known:
         checks.append(Check("manifest.collision", "error", f"The folder {top!r} already exists in the module root."))
 
 
@@ -443,6 +459,8 @@ def _preview(
     name = fields.get("name") if isinstance(fields.get("name"), str) else None
     ui = validate_ui(name, descriptor.get("ui"), checks) if name and descriptor else None
     depends = fields.get("depends") if isinstance(fields.get("depends"), list) else []
+    installed = read_marker(runtime_modules_dir().expanduser() / name.removeprefix("oe_")) if name else None
+    is_update = bool(installed and installed.get("name") == name)
     return Preview(
         token=uuid.uuid4().hex,
         archive_sha256=hashlib.sha256(data).hexdigest(),
@@ -457,6 +475,8 @@ def _preview(
         ui=ui,
         files=files,
         checks=checks,
+        action="update" if is_update else "install",
+        installed_version=installed.get("version") if is_update else None,
     )
 
 
@@ -492,6 +512,8 @@ def installed_packages() -> list[dict[str, Any]]:
         return []
     out = []
     for entry in sorted(root.iterdir()):
+        if entry.name.startswith((".", "_")):
+            continue
         marker = read_marker(entry) if entry.is_dir() else None
         if marker:
             out.append(marker)
@@ -523,6 +545,64 @@ async def create_missing_tables(module_name: str) -> list[str]:
     return [t.name for t in tables]
 
 
+async def _upgrade(token: str, data: bytes, preview: Preview, *, actor: str | None) -> dict[str, Any]:
+    """Stage an upgrade and keep an on-disk rollback; loaded code stays active until restart."""
+    from app.core.module_loader import module_loader
+
+    name = preview.module_name
+    assert name is not None
+    root = runtime_modules_dir().expanduser()
+    target = root / name.removeprefix("oe_")
+    old = read_marker(target)
+    if old is None or old.get("name") != name or old.get("version") != preview.installed_version:
+        raise PackageRefused("Installed module changed since preview. Upload the ZIP again.", code="changed")
+    backup = root / f".{target.name}.rollback"
+    candidate = root / f".{target.name}.{uuid.uuid4().hex}.candidate"
+    extracted = None
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            extracted = stage_and_extract(zf, prefix="oe_module_upgrade_")
+        shutil.move(str(extracted / target.name), str(candidate))
+        marker = {
+            "name": name,
+            "version": preview.version,
+            "display_name": preview.display_name,
+            "author": preview.author,
+            "archive_sha256": preview.archive_sha256,
+            "installed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "installed_by": actor,
+            "ui": preview.ui,
+            "previous_version": old.get("version"),
+            "previous_archive_sha256": old.get("archive_sha256"),
+        }
+        (candidate / MARKER_FILE).write_text(json.dumps(marker, indent=2), encoding="utf-8")
+        if backup.exists():
+            shutil.rmtree(backup)
+        target.rename(backup)
+        try:
+            candidate.rename(target)
+        except OSError:
+            backup.rename(target)
+            raise
+    except (OSError, UnsafeArchiveError, zipfile.BadZipFile) as exc:
+        raise PackageRefused(f"Update failed; previous module files retained: {exc}", code="load_failed") from exc
+    finally:
+        if extracted is not None:
+            shutil.rmtree(extracted, ignore_errors=True)
+        if candidate.exists():
+            shutil.rmtree(candidate, ignore_errors=True)
+        discard(token)
+    return {
+        "name": name,
+        "version": preview.version,
+        "previous_version": old.get("version"),
+        "status": "restart_required",
+        "enabled": module_loader.is_enabled(name),
+        "tables": [],
+        "ui": preview.ui,
+    }
+
+
 async def install(token: str, app: Any, *, enable: bool, actor: str | None) -> dict[str, Any]:
     """Install a staged archive into the runtime module root and optionally mount it.
 
@@ -546,6 +626,10 @@ async def install(token: str, app: Any, *, enable: bool, actor: str | None) -> d
         raise PackageRefused("The archive changed after review. Upload it again.", code="changed")
     if not preview.installable or not preview.module_name:
         raise PackageRefused("The package does not pass the checks.", code="invalid")
+    if preview.action != recorded.get("action") or preview.installed_version != recorded.get("installed_version"):
+        raise PackageRefused("Installed version changed since review. Upload the ZIP again.", code="changed")
+    if preview.action == "update":
+        return await _upgrade(token, data, preview, actor=actor)
 
     name = preview.module_name
     dir_name = name.removeprefix("oe_")
