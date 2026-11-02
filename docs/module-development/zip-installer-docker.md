@@ -15,7 +15,7 @@ and exposes the same admin-only panel in **Settings → Modules**.
    Bundled or manually installed modules cannot be overwritten.
 6. An update replaces files on disk but **does not reload Python in process**.
    Restart the backend/container to activate the new version. Old files are
-   preserved under `.<module>.rollback` in the runtime modules directory.
+   preserved under `.oe-rollback/<module>` in the runtime modules directory.
 
 The installer cannot safely sandbox Python. Trust and independently audit a
 module before installation. Never install unreviewed third-party code.
@@ -46,7 +46,7 @@ for runtime UI contributions.
 ## Rollback
 
 If the upgraded module fails after restart, stop the application container,
-restore `.<module>.rollback` to `<module>` in the persistent runtime module
+restore `.oe-rollback/<module>` to `<module>` in the persistent runtime module
 directory (first move the failed new directory aside), then start the service.
 Do not delete module database tables. Database schema changes require separately
 reviewed migrations; ZIP upgrades do not automatically perform destructive
