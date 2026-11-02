@@ -78,7 +78,7 @@ def test_upgrade_retains_old_files_and_is_not_hot_loaded(old_package: Path) -> N
     result = asyncio.run(pkg._upgrade("deadbeef", data, preview, actor="admin"))
     assert result["status"] == "restart_required"
     assert pkg.read_marker(old_package)["version"] == "1.1.0"
-    backup = old_package.parent / ".zipdemo.rollback"
+    backup = old_package.parent / ".oe-rollback" / "zipdemo"
     assert (backup / "old.txt").read_text() == "preserved"
     assert pkg.read_marker(backup)["version"] == "1.0.0"
     assert [m["name"] for m in pkg.installed_packages()] == ["oe_zipdemo"]
