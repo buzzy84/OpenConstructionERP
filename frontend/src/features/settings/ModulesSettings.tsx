@@ -43,6 +43,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useToastStore } from '@/stores/useToastStore';
 import { useConfirm } from '@/shared/hooks/useConfirm';
 import { resolveModuleDisplayName } from '@/features/modules/moduleDisplayName';
+import { ModulePackagesPanel } from '@/features/modules/ModulePackagesPanel';
 import { fmtList } from '@/shared/lib/formatters';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
@@ -480,6 +481,7 @@ export function ModulesSettings() {
 
   return (
     <div className="space-y-5">
+      {isAdmin && <ModulePackagesPanel />}
       <Card>
         <CardHeader
           title={
