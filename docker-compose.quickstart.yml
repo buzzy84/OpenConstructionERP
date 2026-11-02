@@ -104,6 +104,8 @@ services:
       # below so BIM geometry survives container recreate (otherwise the
       # resolver defaults to ~/.openestimate in the ephemeral container layer).
       OE_DATA_DIR: /data
+      # ZIP-installed modules must survive container recreation.
+      OE_RUNTIME_MODULES_DIR: /data/modules
       # Defaults
       APP_ENV: development
       APP_DEBUG: "false"
