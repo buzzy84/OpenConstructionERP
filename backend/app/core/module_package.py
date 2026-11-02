@@ -557,11 +557,12 @@ async def _upgrade(token: str, data: bytes, preview: Preview, *, actor: str | No
     if old is None or old.get("name") != name or old.get("version") != preview.installed_version:
         raise PackageRefused("Installed module changed since preview. Upload the ZIP again.", code="changed")
     backup = root / ".oe-rollback" / target.name
-    candidate = root / f".{target.name}.{uuid.uuid4().hex}.candidate"
+    candidate = root / ".oe-candidates" / uuid.uuid4().hex / target.name
     extracted = None
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as zf:
             extracted = stage_and_extract(zf, prefix="oe_module_upgrade_")
+        candidate.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(extracted / target.name), str(candidate))
         marker = {
             "name": name,
@@ -590,8 +591,7 @@ async def _upgrade(token: str, data: bytes, preview: Preview, *, actor: str | No
     finally:
         if extracted is not None:
             shutil.rmtree(extracted, ignore_errors=True)
-        if candidate.exists():
-            shutil.rmtree(candidate, ignore_errors=True)
+        shutil.rmtree(candidate.parent, ignore_errors=True)
         discard(token)
     return {
         "name": name,
@@ -718,6 +718,7 @@ async def uninstall(module_name: str, app: Any) -> dict[str, Any]:
         await module_loader.disable_module(module_name, app)
     module_loader.forget_module(module_name)
     shutil.rmtree(target, ignore_errors=True)
+    shutil.rmtree(target.parent / ".oe-rollback" / target.name, ignore_errors=True)
     return {"name": module_name, "status": "removed"}
 
 
